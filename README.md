@@ -1,3 +1,5 @@
+ [![Coverage](https://USERNAME.github.io/REPO/badge.svg)](https://github.com/USERNAME/REPO)
+
 # README
 
 This README would normally document whatever steps are necessary to get the
