@@ -3,6 +3,8 @@ require 'shields_badge'
 SimpleCov.start :rails do
   add_group "Services", "app/services"
 
+  add_filter ["channels", "jobs", "mailers"]
+
   formatter SimpleCov::Formatter::MultiFormatter.new([
     SimpleCov::Formatter::HTMLFormatter,
     SimpleCov::Formatter::ShieldsBadge
