@@ -1,7 +1,7 @@
 class TrialsExtractor
   API_URL = 'https://aplicacao7.tst.jus.br/pautaws/rest/processospauta/tst'
 
-  attr_reader :schedule
+  attr_reader :schedule, :trial
 
   def initialize(adjudicating_part_code, year, schedule_number, session_kind)
     @adjudicating_part_code = adjudicating_part_code
@@ -21,20 +21,16 @@ class TrialsExtractor
     trials_from_api = JSON.parse(response)
 
     trials_from_api.each do |trial_from_api|
-      trial = Trial.find_or_initialize_by(number: trial_from_api['numeroCompleto'])
+      @trial = Trial.find_or_initialize_by(number: trial_from_api['numeroCompleto'])
 
-      unless trial.persisted?
-        trial.meta = trial_from_api
-        trial.save
+      unless @trial.persisted?
+        @trial.meta = trial_from_api
+        @trial.save
       end
 
-      trial.schedules << @schedule
+      @trial.schedules << @schedule
 
       parts_from_api = get_parts(trial_from_api['listaPartes'])
-  
-      parts_from_api.each do |part_from_api|
-        get_lawyers(parts_from_api['listaAdvogadoOuProcuradorParte'])
-      end
     end
   end
 
@@ -56,11 +52,26 @@ class TrialsExtractor
   end
 
   def get_parts(parts_from_api)
-    # do stuff
-    []
+    parts_from_api.each do |part_from_api|
+      part = Part.find_or_initialize_by(code: part_from_api['codParte'])
+
+      unless part.persisted?
+        part.name = part_from_api['nomParte']
+        part.save
+      end
+
+      TrialPart.create(
+        trial: @trial, 
+        part: part, 
+        proxy_year: part_from_api['anoProcInt'],
+        proxy_number: part_from_api['numProcInt']
+      )
+
+      # get_lawyers(part, part_from_api['listaAdvogadoOuProcuradorParte'])
+    end
   end
 
-  def get_lawyers(lawyers_from_api)
+  def get_lawyers(part, lawyers_from_api)
     # do stuff
   end
 end
