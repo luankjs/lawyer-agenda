@@ -21,9 +21,7 @@ class SchedulesExtractor
         kind: schedule_from_api['tipSessao'],
       }
 
-      if Schedule.where(schedule_id_params).count > 0
-        puts "Schedule #{schedule_id_params.map { |key, value| value }.join('-')} already extracted"
-      else
+      unless Schedule.where(schedule_id_params).count > 0
         schedule_params = {
           adjudicating_part_code: schedule_from_api['orgaoJudicante']['codOrgaoJudicante'],
           kind: schedule_from_api['tipSessao'],
