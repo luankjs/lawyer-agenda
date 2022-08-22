@@ -2,24 +2,19 @@ require 'rails_helper'
 
 RSpec.describe TrialsExtractor, type: :model do
   let!(:extracted_schedule) { 
-    create(
-      :schedule, 
-      adjudicating_part_code: 405,
-      year: 2022,
-      number: 6,
-      kind: "O"
-    )
+    create(:schedule, adjudicating_part_code: 405, year: 2022, number: 6, kind: "O")
   }
 
   let!(:another_extracted_schedule) { 
-    create(
-      :schedule, 
-      adjudicating_part_code: 405,
-      year: 2022,
-      number: 6,
-      kind: "O"
-    )
+    create(:schedule, adjudicating_part_code: 405, year: 2022, number: 6, kind: "O")
   }
+
+  let(:json_response_mock) { File.read(File.join("spec", "support", "fixtures", "trials.json")) }
+  let(:parsed_trials_from_api) { JSON.parse(json_response_mock) }
+  let(:already_extracted_trial) { create(:trial, number: parsed_trials_from_api[0]['numeroCompleto']) }
+  let(:another_extracted_trial) { create(:trial, number: "12.34.56.78-9") }
+
+  let(:already_extracted_part) { create(:part, code: parsed_trials_from_api[0]['listaPartes'][0]['codParte']) }
 
   let(:trials_extractor) { 
     TrialsExtractor.new(
@@ -29,6 +24,12 @@ RSpec.describe TrialsExtractor, type: :model do
       extracted_schedule.kind
     ) 
   }
+
+  before do
+    stub_request(:get, "https://aplicacao7.tst.jus.br/pautaws/rest/processospauta/tst").
+      with(query: { sessao: extracted_schedule.composite_id }).
+      to_return(status: 200, body: json_response_mock, headers: {})
+  end
 
   describe '#new' do
     it 'should receive correct number of args' do
@@ -58,16 +59,6 @@ RSpec.describe TrialsExtractor, type: :model do
     end
 
     describe 'when api returns trials' do
-      let(:json_response_mock) { File.read(File.join("spec", "support", "fixtures", "trials.json")) }
-      let(:parsed_trials_from_api) { JSON.parse(json_response_mock) }
-      let(:already_extracted_trial) { create(:trial, number: parsed_trials_from_api[0]['numeroCompleto']) }
-
-      before do
-        stub_request(:get, "https://aplicacao7.tst.jus.br/pautaws/rest/processospauta/tst").
-          with(query: { sessao: extracted_schedule.composite_id }).
-          to_return(status: 200, body: json_response_mock, headers: {})
-      end
-
       it 'should create trials' do
         expect(Trial.count).to eq(0)
 
@@ -103,6 +94,38 @@ RSpec.describe TrialsExtractor, type: :model do
         expect(Trial.count).to eq(2)
         expect(extracted_schedule.trials.count).to eq(parsed_trials_from_api.size)
       end
+    end
+  end
+
+  describe '#get_parts' do
+    it 'should create parts' do
+      expect(Part.count).to eq(0)
+
+      trials_extractor.call
+
+      expect(Part.count).to eq(parsed_trials_from_api.map{|t| t['listaPartes']}.flatten.size)
+    end
+
+    it 'should relates with Trials correctly' do
+      expect(already_extracted_trial.parts.count).to eq(0)
+
+      trials_extractor.call
+
+      parsed_trials_from_api.each do |trial_from_api|
+        trial_from_api['listaPartes'].each do |part_from_api|
+          expect(Part.find_by(code: part_from_api['codParte']).trials).to include(Trial.find_by(number: trial_from_api['numeroCompleto']))
+        end
+      end
+    end
+
+    it 'should ignore already extracted parts and only relates with correct trial' do
+      expect(already_extracted_part.code).to eq(parsed_trials_from_api[0]['listaPartes'][0]['codParte'])
+      expect(Part.count).to eq(1)
+
+      trials_extractor.call
+
+      expect(Part.count).to_not eq(parsed_trials_from_api.map{|t| t['listaPartes']}.flatten.size + 1)
+      expect(Part.count).to eq(6)
     end
   end
 end
