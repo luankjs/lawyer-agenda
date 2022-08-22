@@ -67,11 +67,15 @@ class TrialsExtractor
         proxy_number: part_from_api['numProcInt']
       )
 
-      # extract_lawyers(part, part_from_api['listaAdvogadoOuProcuradorParte'])
+      extract_lawyers(part, part_from_api['listaAdvogadoOuProcuradorParte'])
     end
   end
 
   def extract_lawyers(part, lawyers_from_api)
-    # do stuff
+    lawyers_from_api.each do |lawyer_from_api|
+      lawyer = Lawyer.find_or_initialize_by(name: lawyer_from_api['nome'])
+
+      part.lawyers << lawyer
+    end
   end
 end
