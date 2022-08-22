@@ -8,7 +8,11 @@ class SchedulesExtractor
   end
 
   def call
-    schedules_from_api = HTTP.get(API_URL).parse
+    begin
+      schedules_from_api = HTTP.get(API_URL).parse    
+    rescue => exception
+      return "API is unavailable"
+    end
 
     schedules_from_api.each do |schedule_from_api|
       schedule_id_params = {
