@@ -97,7 +97,7 @@ RSpec.describe TrialsExtractor, type: :model do
     end
   end
 
-  describe '#get_parts' do
+  describe '#extract_parts' do
     it 'should create parts' do
       expect(Part.count).to eq(0)
 

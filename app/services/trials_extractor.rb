@@ -30,7 +30,7 @@ class TrialsExtractor
 
       @trial.schedules << @schedule
 
-      parts_from_api = get_parts(trial_from_api['listaPartes'])
+      parts_from_api = extract_parts(trial_from_api['listaPartes'])
     end
   end
 
@@ -51,7 +51,7 @@ class TrialsExtractor
     schedule
   end
 
-  def get_parts(parts_from_api)
+  def extract_parts(parts_from_api)
     parts_from_api.each do |part_from_api|
       part = Part.find_or_initialize_by(code: part_from_api['codParte'])
 
@@ -67,11 +67,11 @@ class TrialsExtractor
         proxy_number: part_from_api['numProcInt']
       )
 
-      # get_lawyers(part, part_from_api['listaAdvogadoOuProcuradorParte'])
+      # extract_lawyers(part, part_from_api['listaAdvogadoOuProcuradorParte'])
     end
   end
 
-  def get_lawyers(part, lawyers_from_api)
+  def extract_lawyers(part, lawyers_from_api)
     # do stuff
   end
 end
