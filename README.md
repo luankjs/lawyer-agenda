@@ -50,7 +50,6 @@ bundle install
 
 ### Database creation & initialization
 ```sh
-gem install pg
 
 rails db:setup
 
@@ -61,6 +60,17 @@ rails db:migrate
 ```sh
 rspec
 ```
+
+### How to run the extractor
+Open rails console:
+```sh
+rails console
+```
+Run the extractor:
+```sh
+SchedulesExtractor.new.call()
+```
+
 
 ### Staff
 ### Autores:
