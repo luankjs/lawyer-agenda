@@ -20,11 +20,11 @@ default: &default
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: zevit0r
+  username: postgres
 
 development:
   <<: *default
-  database: zevit0r
+  database: lawyer_agenda_development
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -33,7 +33,7 @@ development:
   #username: lawyer_agenda
 
   # The password associated with the postgres role (username).
-  password: password
+  password: postgres
 
   # Connect on a TCP socket. Omitted by default since the client uses a
   # domain socket that doesn't need configuration. Windows does not have
