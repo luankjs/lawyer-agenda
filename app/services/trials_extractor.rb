@@ -18,7 +18,7 @@ class TrialsExtractor
       raise "API is unavailable"
     end
 
-    trials_from_api = JSON.parse(response)
+    trials_from_api = JSON.parse(response&.body)
 
     trials_from_api.each do |trial_from_api|
       @trial = Trial.find_or_initialize_by(number: trial_from_api['numeroCompleto'])

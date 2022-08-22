@@ -8,7 +8,7 @@ class SchedulesExtractor
   def call
     begin
       response = HTTParty.get(API_URL)
-      schedules_from_api = JSON.parse(response)
+      schedules_from_api = JSON.parse(response&.body)
     rescue => exception
       return "API is unavailable"
     end
