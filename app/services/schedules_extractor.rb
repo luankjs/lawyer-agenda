@@ -1,5 +1,3 @@
-require "http"
-
 class SchedulesExtractor
   API_URL = 'https://aplicacao7.tst.jus.br/pautaws/rest/pautas'
 
@@ -9,7 +7,8 @@ class SchedulesExtractor
 
   def call
     begin
-      schedules_from_api = HTTP.get(API_URL).parse    
+      response = HTTParty.get(API_URL)
+      schedules_from_api = JSON.parse(response)
     rescue => exception
       return "API is unavailable"
     end
