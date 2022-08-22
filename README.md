@@ -1,5 +1,4 @@
- [![Coverage](https://USERNAME.github.io/REPO/badge.svg)](https://github.com/USERNAME/REPO)
-
+ [![Coverage](https://luankjs.github.io/lawyer-agenda/badge.svg)](https://github.com/luankjs/lawyer-agenda)
 # README
 
 This README would normally document whatever steps are necessary to get the
