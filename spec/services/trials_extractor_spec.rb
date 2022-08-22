@@ -53,20 +53,14 @@ RSpec.describe TrialsExtractor, type: :model do
       end
 
       it "should raise an error" do
-        expect { 
-          TrialsExtractor.new(
-            extracted_schedule.adjudicating_part_code,
-            extracted_schedule.year,
-            extracted_schedule.number,
-            extracted_schedule.kind
-          ).call
-        }.to raise_error("API is unavailable")
+        expect { trials_extractor.call }.to raise_error("API is unavailable")
       end
     end
 
     describe 'when api returns trials' do
       let(:json_response_mock) { File.read(File.join("spec", "support", "fixtures", "trials.json")) }
       let(:parsed_trials_from_api) { JSON.parse(json_response_mock) }
+      let(:already_extracted_trial) { create(:trial, number: parsed_trials_from_api[0]['numeroCompleto']) }
 
       before do
         stub_request(:get, "https://aplicacao7.tst.jus.br/pautaws/rest/processospauta/tst").
@@ -77,12 +71,7 @@ RSpec.describe TrialsExtractor, type: :model do
       it 'should create trials' do
         expect(Trial.count).to eq(0)
 
-        TrialsExtractor.new(
-          extracted_schedule.adjudicating_part_code,
-          extracted_schedule.year,
-          extracted_schedule.number,
-          extracted_schedule.kind
-        ).call
+        trials_extractor.call
 
         expect(Trial.count).to eq(parsed_trials_from_api.size)
       end
@@ -91,17 +80,28 @@ RSpec.describe TrialsExtractor, type: :model do
         expect(extracted_schedule.trials.size).to eq(0)
         expect(another_extracted_schedule.trials.size).to eq(0)
         
-        TrialsExtractor.new(
-          extracted_schedule.adjudicating_part_code,
-          extracted_schedule.year,
-          extracted_schedule.number,
-          extracted_schedule.kind
-        ).call
+        trials_extractor.call
 
         expect(extracted_schedule.trials.count).to eq(parsed_trials_from_api.size)
         expect(another_extracted_schedule.trials.size).to eq(0)
-        expect(Trial.all.collect { |t| t.schedules.to_a }.flatten.uniq).to include(extracted_schedule)
-        expect(Trial.all.collect { |t| t.schedules.to_a }.flatten.uniq).to_not include(another_extracted_schedule)
+        expect(
+          Trial.all.collect { |t| t.schedules.to_a }.flatten.uniq
+        ).to include(extracted_schedule)
+        expect(
+          Trial.all.collect { |t| t.schedules.to_a }.flatten.uniq
+        ).to_not include(another_extracted_schedule)
+      end
+
+      it 'should ignore already extracted trials' do
+        expect(already_extracted_trial.number).to eq(parsed_trials_from_api[0]['numeroCompleto'])
+        expect(Trial.count).to eq(1)
+        expect(extracted_schedule.trials.count).to eq(0)
+
+        trials_extractor.call
+
+        expect(Trial.count).to_not eq(3)
+        expect(Trial.count).to eq(2)
+        expect(extracted_schedule.trials.count).to eq(parsed_trials_from_api.size)
       end
     end
   end

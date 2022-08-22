@@ -23,10 +23,11 @@ class TrialsExtractor
     trials_from_api.each do |trial_from_api|
       trial = Trial.find_or_initialize_by(number: trial_from_api['numeroCompleto'])
 
-      next if trial.persisted?
+      unless trial.persisted?
+        trial.meta = trial_from_api
+        trial.save
+      end
 
-      trial.meta = trial_from_api
-      trial.save
       trial.schedules << @schedule
 
       parts_from_api = get_parts(trial_from_api['listaPartes'])
