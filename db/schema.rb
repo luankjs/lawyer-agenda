@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_24_171219) do
+ActiveRecord::Schema.define(version: 2022_08_24_171558) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,6 +38,15 @@ ActiveRecord::Schema.define(version: 2022_08_24_171219) do
   create_table "schedules_trials", id: false, force: :cascade do |t|
     t.bigint "schedule_id", null: false
     t.bigint "trial_id", null: false
+  end
+
+  create_table "trial_parts", force: :cascade do |t|
+    t.bigint "trial_id"
+    t.bigint "part_id"
+    t.integer "proxy_year"
+    t.integer "proxy_number"
+    t.index ["part_id"], name: "index_trial_parts_on_part_id"
+    t.index ["trial_id"], name: "index_trial_parts_on_trial_id"
   end
 
   create_table "trials", force: :cascade do |t|
