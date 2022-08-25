@@ -12,7 +12,13 @@ class TrialsExtractor
   end
 
   def call
-    # do stuff
+    begin
+      response = HTTParty.get(API_URL, { query: { sessao: @schedule.composite_id } })
+    rescue Net::OpenTimeout => exception
+      raise "API is unavailable"
+    end
+
+
   end
 
   private

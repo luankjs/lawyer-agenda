@@ -36,5 +36,25 @@ RSpec.describe TrialsExtractor, type: :model do
   end
 
   describe '#call' do
+    describe 'when api is unavailable' do
+      before do
+        stub_request(:get, "https://aplicacao7.tst.jus.br/pautaws/rest/processospauta/tst").
+        with(query: { sessao: extracted_schedule.composite_id }).to_timeout
+      end
+
+      it "should raise an error" do
+        expect { 
+          TrialsExtractor.new(
+            extracted_schedule.adjudicating_part_code,
+            extracted_schedule.year,
+            extracted_schedule.number,
+            extracted_schedule.kind
+          ).call
+        }.to raise_error("API is unavailable")
+      end
+    end
+
+    describe '' do
+    end
   end
 end
