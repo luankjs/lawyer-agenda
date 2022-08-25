@@ -16,4 +16,8 @@
 #
 class Schedule < ApplicationRecord
   has_and_belongs_to_many :trials
+
+  def composite_id
+    "#{adjudicating_part_code}-#{year}-#{number}-#{kind}"
+  end
 end
