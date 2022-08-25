@@ -54,5 +54,23 @@ RSpec.describe SchedulesExtractor, type: :model do
         expect(Schedule.where(adjudicating_part_code: 405, year: 2022, number: 6, kind: "O").count).to eq(1)
       end
     end
+
+    describe 'when api returns n schedules' do
+      let(:json_response_mock) { File.read(File.join("spec", "support", "fixtures", "schedules.json")) }
+      let(:parsed_schedules_from_api) { JSON.parse(json_response_mock) }
+      
+      before do
+        stub_request(:get, "https://aplicacao7.tst.jus.br/pautaws/rest/pautas").
+          to_return(status: 200, body: json_response_mock, headers: {})
+      end
+
+      it 'n schedules should be created' do
+        expect(Schedule.count).to eq(0)
+  
+        SchedulesExtractor.new.call
+  
+        expect(Schedule.count).to eq(parsed_schedules_from_api.size)
+      end
+    end
   end
 end
