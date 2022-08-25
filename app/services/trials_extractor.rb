@@ -1,9 +1,14 @@
 class TrialsExtractor
+  API_URL = 'https://aplicacao7.tst.jus.br/pautaws/rest/processospauta/tst'
+
+  attr_reader :schedule
+
   def initialize(adjudicating_part_code, year, schedule_number, session_kind)
     @adjudicating_part_code = adjudicating_part_code
     @year                   = year
     @schedule_number        = schedule_number
     @session_kind           = session_kind
+    @schedule               = get_schedule
   end
 
   def call
@@ -11,5 +16,19 @@ class TrialsExtractor
   end
 
   private
-    attr_reader :adjudicating_part_code, :year, :schedule_number, :session_kind
+
+  def get_schedule
+    schedule = Schedule.where(
+      adjudicating_part_code: @adjudicating_part_code,
+      year: @year,
+      number: @schedule_number,
+      kind: @session_kind
+    ).first
+
+    unless schedule
+      raise "Schedule not found to passed args"
+    end
+
+    schedule
+  end
 end
