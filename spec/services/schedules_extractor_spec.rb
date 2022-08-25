@@ -34,8 +34,8 @@ RSpec.describe SchedulesExtractor, type: :model do
         stub_request(:get, "https://aplicacao7.tst.jus.br/pautaws/rest/pautas").
           to_return(status: 200, body: json_response_mock, headers: {})
         
-        stub_request(:get, "https://aplicacao7.tst.jus.br/pautaws/rest/processospauta/tst").
-          to_return(status: 200, body: '', headers: {})
+        stub_request(:get, /aplicacao7.tst.jus.br\/pautaws\/rest\/processospauta\/tst/).
+          to_return(status: 200, body: '[]', headers: {})
       end
       
       let!(:already_extracted_schedule) { 
@@ -66,8 +66,8 @@ RSpec.describe SchedulesExtractor, type: :model do
         stub_request(:get, "https://aplicacao7.tst.jus.br/pautaws/rest/pautas").
           to_return(status: 200, body: json_response_mock, headers: {})
 
-        stub_request(:get, "https://aplicacao7.tst.jus.br/pautaws/rest/processospauta/tst").
-          to_return(status: 200, body: '', headers: {})
+        stub_request(:get, /aplicacao7.tst.jus.br\/pautaws\/rest\/processospauta\/tst/).
+          to_return(status: 200, body: '[]', headers: {})
       end
 
       it 'n schedules should be created' do
