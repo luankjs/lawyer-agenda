@@ -18,23 +18,48 @@ class TrialsExtractor
       raise "API is unavailable"
     end
 
+    trials_from_api = JSON.parse(response)
 
+    trials_from_api.each do |trial_from_api|
+      trial = Trial.find_or_initialize_by(number: trial_from_api['numeroCompleto'])
+
+      next if trial.persisted?
+
+      trial.meta = trial_from_api
+      trial.save
+      trial.schedules << @schedule
+
+      parts_from_api = get_parts(trial_from_api['listaPartes'])
+  
+      parts_from_api.each do |part_from_api|
+        get_lawyers(parts_from_api['listaAdvogadoOuProcuradorParte'])
+      end
+    end
   end
 
   private
 
   def get_schedule
-    schedule = Schedule.where(
+    schedule = Schedule.find_by(
       adjudicating_part_code: @adjudicating_part_code,
       year: @year,
       number: @schedule_number,
       kind: @session_kind
-    ).first
+    )
 
     unless schedule
       raise "Schedule not found to passed args"
     end
 
     schedule
+  end
+
+  def get_parts(parts_from_api)
+    # do stuff
+    []
+  end
+
+  def get_lawyers(lawyers_from_api)
+    # do stuff
   end
 end
