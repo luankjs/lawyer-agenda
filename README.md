@@ -34,7 +34,7 @@ sudo -sudo -u postgres psql
 # postgres=# CREATE DATABASE your_username ENCODING 'UTF8' TEMPLATE template0 OWNER your_username;
 # postgres=# \q
 ```
-Tip: change `your_username` above to **your username** and substitute the line `username: postgres` to same user. 
+Tip: change `your_username` above to **your username** and substitute the line `username: postgres` on `config/database.yml` to same user. 
 
 #### libpq-dev
 ```sh
