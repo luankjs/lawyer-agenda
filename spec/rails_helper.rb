@@ -1,3 +1,14 @@
+require 'simplecov'
+require 'shields_badge'
+SimpleCov.start :rails do
+  add_group "Services", "app/services"
+
+  formatter SimpleCov::Formatter::MultiFormatter.new([
+    SimpleCov::Formatter::HTMLFormatter,
+    SimpleCov::Formatter::ShieldsBadge
+  ])
+end
+
 require_relative 'support/factory_bot'
 require_relative 'support/chrome'
 

@@ -45,6 +45,8 @@ end
 
 group :test do
   gem "webmock"
+  gem 'simplecov'
+  gem 'simplecov-shields-badge'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
