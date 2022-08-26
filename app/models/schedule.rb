@@ -15,7 +15,12 @@
 #  updated_at             :datetime         not null
 #
 class Schedule < ApplicationRecord
-  has_and_belongs_to_many :trials
+  validates_presence_of :adjudicating_part_code
+  validates_presence_of :kind
+  validates_presence_of :number
+  validates_presence_of :year
+  validates_format_of :kind, :with => /E|O/
+  has_and_belongs_to_many :trials 
 
   def composite_id
     "#{adjudicating_part_code}-#{year}-#{number}-#{kind}"
