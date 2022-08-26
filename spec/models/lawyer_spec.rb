@@ -10,4 +10,10 @@
 require 'rails_helper'
 
 RSpec.describe Lawyer, type: :model do
+  it "is valid with valid attributes"
+  it "is not valid without a id"
+  it "is not valid without a name"
+  it "is not valid without a created_at"
+  it "is not valid without a updated_at"
+  it "is not valid if its name contains special chars"
 end
