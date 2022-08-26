@@ -15,6 +15,13 @@ RSpec.describe TrialsExtractor, type: :model do
   let(:another_extracted_trial) { create(:trial, number: "12.34.56.78-9") }
 
   let(:already_extracted_part) { create(:part, code: parsed_trials_from_api[0]['listaPartes'][0]['codParte']) }
+  
+  let(:already_extracted_lawyer) { 
+    create(
+      :lawyer, 
+      name: parsed_trials_from_api[0]['listaPartes'][0]['listaAdvogadoOuProcuradorParte'][0]['nome']
+    ) 
+  }
 
   let(:trials_extractor) { 
     TrialsExtractor.new(
@@ -97,7 +104,7 @@ RSpec.describe TrialsExtractor, type: :model do
     end
   end
 
-  describe '#get_parts' do
+  describe '#extract_parts' do
     it 'should create parts' do
       expect(Part.count).to eq(0)
 
@@ -126,6 +133,48 @@ RSpec.describe TrialsExtractor, type: :model do
 
       expect(Part.count).to_not eq(parsed_trials_from_api.map{|t| t['listaPartes']}.flatten.size + 1)
       expect(Part.count).to eq(6)
+    end
+  end
+
+  describe '#extract_lawyers' do
+    it 'should create lawyers' do
+      expect(Lawyer.count).to eq(0)
+
+      trials_extractor.call
+
+      expect(Lawyer.count).to eq(
+        parsed_trials_from_api.map do |t| 
+          t['listaPartes'].map{ |p| p['listaAdvogadoOuProcuradorParte'] }
+        end.flatten.size
+      )
+    end
+
+    it 'should relates with Parts correctly' do
+      expect(already_extracted_part.lawyers.count).to eq(0)
+
+      trials_extractor.call
+
+      parsed_trials_from_api.each do |trial_from_api|
+        trial_from_api['listaPartes'].each do |part_from_api|
+          part_from_api['listaAdvogadoOuProcuradorParte'].each do |lawyer_from_api|
+            expect(Lawyer.find_by(name: lawyer_from_api['nome']).parts).to include(Part.find_by(code: part_from_api['codParte']))
+          end
+        end
+      end
+    end
+
+    it 'should ignore already extracted lawyers and only relates with correct part' do
+      expect(already_extracted_lawyer.name).to eq(
+        parsed_trials_from_api[0]['listaPartes'][0]['listaAdvogadoOuProcuradorParte'][0]['nome']
+      )
+      expect(Lawyer.count).to eq(1)
+
+      trials_extractor.call
+
+      expect(Lawyer.count).to_not eq(
+        parsed_trials_from_api.map{ |t| t['listaPartes'].map{ |p| p['listaAdvogadoOuProcuradorParte'].map{ |l| l['nome'] } } }.flatten.size + 1
+      )
+      expect(Lawyer.count).to eq(8)
     end
   end
 end
